@@ -1,21 +1,27 @@
 library(limma)
 library(DT)
+library(tidyverse)
+
 base::source("https://raw.githubusercontent.com/idbenitez/Code_lab/main/Expresion.diferencial.R")
 
 
 ## Read data 
+dat <- xlsx::read.xlsx("TB3_5_220411.xlsx",sheetIndex = 1) # read data
+dat$miRNA.distribution <- gsub("-",".",dat$miRNA.distribution) #remove symbols
 
+dat2 <- dat %>% dplyr::select(Sample.Name,miRNA.distribution,Group, log2.dct) %>% 
+  spread(miRNA.distribution, log2.dct) # long to wide 
 ## Execute differential expression
 
 ### Crear vectores de nombres 
-mi_names <- mi_names
-adjusted_names <- NULL
+mi_names <- dat2 %>% dplyr::select(let.7d.5p:miR.92b.3p) %>% colnames
+adjusted_names <- NULL # ejemplo c("Edad","Sexo")
 
-res_de <- expresion_diferencial(aux2,# Base de datos 
+res_de <- expresion_diferencial(dat2,# Base de datos 
                                 "Group", # nombre del la variable grupo
                                 NULL, # Vector de texto con los nombres de las variables de ajuste 
                                 mi_names , # Vector de texto con los nombres de las features
-                                "record_id") #  Nombre de la variable identificador de paciente
+                                "Sample.Name") #  Nombre de la variable identificador de paciente
 
 
 ## Extraer tabla de resultados
