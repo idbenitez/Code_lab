@@ -1,9 +1,6 @@
 # Expresion diferencial 
 # https://raw.githubusercontent.com/idbenitez/Code_lab/main/Expresion.diferencial.R
 
-## Update
-## Volcano plot habia un error en el codigo y no printaba el nombre de las proteinas
-
 
 expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
                                           pval = 0.05, FC_limit = 1.15) {
@@ -94,11 +91,10 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
     ss$names[ss$y < (-1)*log(pval) & ss$x >= -(1)*log10(FC_limit)] <- NA
     ss$names[ss$y < (-1)*log(pval) & ss$x < log10(FC_limit)] <- NA
     
-    bp <- ggplot(ss, aes(x = x, y = y, label = names, color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
+    bp <- ggplot(ss, aes(x = x, y = y, labels = names, color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
       scale_colour_manual(values = cols) +
       ggtitle(label = "", subtitle = "") +
       geom_point(size = 2.5, alpha = 1, na.rm = T) +
-      geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
       theme_bw(base_size = 14) +
       theme(legend.position = "top",
             legend.title = element_blank(),
@@ -129,11 +125,10 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
     ss$names[ss$y < (-1)*log(pval) & ss$x >= -(1)*log2(FC_limit)] <- NA
     ss$names[ss$y < (-1)*log(pval) & ss$x < log2(FC_limit)] <- NA
     
-    bp <- ggplot(ss, aes(x = x, y = y, label = names,color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
+    bp <- ggplot(ss, aes(x = x, y = y, labels = names,color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
       scale_colour_manual(values = cols) +
       ggtitle(label = "", subtitle = "") +
       geom_point(size = 2.5, alpha = 1, na.rm = T) +
-      geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
       theme_bw(base_size = 14) +
       theme(legend.position = "top",
             legend.title = element_blank(),
