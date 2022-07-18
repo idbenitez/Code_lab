@@ -151,7 +151,6 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
       annotate("text", x = -log2(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000") + 
       ggrepel::geom_text_repel(aes(x = x, y = y, label=names)) 
     
-
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
 
