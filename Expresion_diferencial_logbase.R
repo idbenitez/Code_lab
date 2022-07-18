@@ -94,11 +94,11 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
     ss$names[ss$y < (-1)*log(pval) & ss$x >= -(1)*log10(FC_limit)] <- NA
     ss$names[ss$y < (-1)*log(pval) & ss$x < log10(FC_limit)] <- NA
     
-    bp <- ggplot(ss, aes(x = x, y = y, label = names, color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
+    bp <- ggplot(ss, aes(x = x, y = y, color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
       scale_colour_manual(values = cols) +
       ggtitle(label = "", subtitle = "") +
       geom_point(size = 2.5, alpha = 1, na.rm = T) +
-      geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
+     # geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
       theme_bw(base_size = 14) +
       theme(legend.position = "top",
             legend.title = element_blank(),
@@ -110,9 +110,10 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
       geom_hline(yintercept = (-1)*log(pval), colour = "blue", linetype = "dashed") +
       geom_vline(xintercept = (-1)*log10(FC_limit), colour = "#990000", linetype = "dashed") +
       geom_vline(xintercept = log10(FC_limit), colour = "#990000", linetype = "dashed") +
-      scale_y_continuous(trans = "log1p") + 
+     # scale_y_continuous(trans = "log1p") + 
       annotate("text", x = log10(FC_limit), y = 0, label = paste0("FC = ", FC_limit), hjust = 0.15, vjust = 1, angle=90, colour = "#990000")+ 
-      annotate("text", x = -log10(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000")
+      annotate("text", x = -log10(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000") +
+      ggrepel::geom_text_repel(aes(x = x, y = y, label=names)) 
     
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
@@ -129,11 +130,11 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
     ss$names[ss$y < (-1)*log(pval) & ss$x >= -(1)*log2(FC_limit)] <- NA
     ss$names[ss$y < (-1)*log(pval) & ss$x < log2(FC_limit)] <- NA
     
-    bp <- ggplot(ss, aes(x = x, y = y, label = names,color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
+    bp <- ggplot(ss, aes(x = x, y = y,color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
       scale_colour_manual(values = cols) +
       ggtitle(label = "", subtitle = "") +
       geom_point(size = 2.5, alpha = 1, na.rm = T) +
-      geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
+     # geom_text(show.legend = FALSE) + #hjust=0, vjust=0, 
       theme_bw(base_size = 14) +
       theme(legend.position = "top",
             legend.title = element_blank(),
@@ -145,9 +146,11 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
       geom_hline(yintercept = (-1)*log(pval), colour = "blue", linetype = "dashed") +
       geom_vline(xintercept = (-1)*log2(FC_limit), colour = "#990000", linetype = "dashed") +
       geom_vline(xintercept = log2(FC_limit), colour = "#990000", linetype = "dashed") +
-      scale_y_continuous(trans = "log1p")  + 
+    #  scale_y_continuous(trans = "log1p")  + 
       annotate("text", x = log2(FC_limit), y = 0, label = paste0("FC = ", FC_limit), hjust = 0.15, vjust = 1, angle=90, colour = "#990000")+ 
-      annotate("text", x = -log2(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000")
+      annotate("text", x = -log2(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000") + 
+      ggrepel::geom_text_repel(aes(x = x, y = y, label=names)) 
+    
 
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
