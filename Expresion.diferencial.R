@@ -82,7 +82,7 @@ expresion_diferencial <- function(datos, var_grupo, vars_ajuste, noms_proteines,
     geom_hline(yintercept = (-1)*log(0.05), colour="blue", linetype="dashed") +
     geom_vline(xintercept = (-1)*log10(1.15), colour="#990000", linetype="dashed") +
     geom_vline(xintercept = log10(1.15), colour="#990000", linetype="dashed") +
-    scale_y_continuous(trans = "log1p") #+ xlim(-0.1,0.1)
+   # scale_y_continuous(trans = "log1p") #+ xlim(-0.1,0.1)
   # + ggrepel::geom_text_repel(aes(x = x, y = y, label=names)) 
   if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour="darkgreen", linetype="dashed")
   
