@@ -155,9 +155,16 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   
   aux <- data.frame(datos %>% dplyr::select(noms_proteines))
   res <- apply(aux,2,
-               function(x){pROC::auc(datos[,var_grupo], x)})
-  res <- ifelse(res<0.5,
-                1-res,res)
+               function(x){
+                 ss <- pROC::ci.auc(datos[,var_grupo], x)
+                 if(ss[2]<0.5){
+                   ss[2] <- 1 - ss[2]
+                   aux <- ss[1]
+                   ss[1] <- 1 - ss[3]
+                   ss[3] <- 1 - aux}
+                 paste0(format(round(ss[2],2),nsmall = 2), " (", format(round(ss[1],2),nsmall = 2)," - ", format(round(ss[3],2),nsmall = 2),")")})
+  # res <- ifelse(res<0.5,
+  #               1-res,res)
   res <- data.frame(Names =names(res),AUC = res)
   ddCt <- merge(ddCt,res,by = "Names",all = TRUE, sort = FALSE)
   
