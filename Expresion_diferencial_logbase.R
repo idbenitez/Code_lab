@@ -161,8 +161,6 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   res <- data.frame(Names =names(res),AUC = res)
   ddCt <- merge(ddCt,res,by = "Names",all = TRUE, sort = FALSE)
   
-  
-  
   ## Resultados a devolver  
   list(limma %>% mutate_if(is.numeric, round, digits=5),
        ddCt  %>% mutate_if(is.numeric, round, digits=3), 
