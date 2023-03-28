@@ -189,3 +189,4 @@ function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
        bp,
        eBa)
 }
+
