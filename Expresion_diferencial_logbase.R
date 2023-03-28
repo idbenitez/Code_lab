@@ -1,4 +1,4 @@
-function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
+expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
          pval = 0.05, FC_limit = 1.15) {
   
   ## Parametros de entrada en la función:
