@@ -1,11 +1,5 @@
-# Expresion diferencial 
-# https://raw.githubusercontent.com/idbenitez/Code_lab/main/Expresion.diferencial.R
-
-## Update
-## Volcano plot habia un error en el codigo y no printaba el nombre de las proteinas
-
-expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
-                                          pval = 0.05, FC_limit = 1.15) {
+function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
+         pval = 0.05, FC_limit = 1.15) {
   
   ## Parametros de entrada en la función:
   ##   datos: dataframe con los datos
@@ -24,20 +18,41 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   ## Data without missing  ##
   datos <- datos[complete.cases(datos[, c(var_grupo, vars_ajuste,names_id)]),]
   
-  ## "unadjusted"  ##
-  if(is.null(vars_ajuste)){
-    design <- model.matrix(as.formula(paste0("~  0 + ", var_grupo)), data = datos)
-    colnames(design) <- c("gr1","gr2")
-    rownames(design) <- datos[,names_id]
-    cont.matrix <- makeContrasts(DIF = gr2-gr1, levels = design) 
+  
+  
+  if(is.numeric(datos[,var_grupo])){
+    ## "unadjusted"  ##
+    if(is.null(vars_ajuste)){
+      design <- model.matrix(as.formula(paste0("~", var_grupo)), data = datos)
+      colnames(design) <- c("INTERCEPT","gr")
+      rownames(design) <- datos[,names_id]
+      cont.matrix <- makeContrasts(DIF = gr, levels = design) 
+    }
+    ## "adjusted"  ##
+    else{
+      design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
+      colnames(design)[1:2] <- c("INTERCEPT", "gr")
+      rownames(design) <- datos[, names_id]
+      cont.matrix <- makeContrasts(gr, levels = design) 
+    }
   }
-  ## "adjusted"  ##
   else{
-    design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
-    colnames(design)[1:2] <- c("INTERCEPT", "gr2")
-    rownames(design) <- datos[, names_id]
-    cont.matrix <- makeContrasts(gr2, levels = design) 
-  }
+    ## "unadjusted"  ##
+    if(is.null(vars_ajuste)){
+      design <- model.matrix(as.formula(paste0("~  0 + ", var_grupo)), data = datos)
+      colnames(design) <- c("gr1","gr2")
+      rownames(design) <- datos[,names_id]
+      cont.matrix <- makeContrasts(DIF = gr2-gr1, levels = design) 
+    }
+    ## "adjusted"  ##
+    else{
+      design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
+      colnames(design)[1:2] <- c("INTERCEPT", "gr2")
+      rownames(design) <- datos[, names_id]
+      cont.matrix <- makeContrasts(gr2, levels = design) 
+    }
+  } 
+  
   
   ## Protein data (with rows corresponding to genes/proteins and columns to samples)
   aux <- t(datos[, noms_proteines])
@@ -153,20 +168,20 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
   
-  aux <- data.frame(datos %>% dplyr::select(noms_proteines))
-  res <- apply(aux,2,
-               function(x){
-                 ss <- pROC::ci.auc(datos[,var_grupo], x)
-                 if(ss[2]<0.5){
-                   ss[2] <- 1 - ss[2]
-                   aux <- ss[1]
-                   ss[1] <- 1 - ss[3]
-                   ss[3] <- 1 - aux}
-                 paste0(format(round(ss[2],2),nsmall = 2), " (", format(round(ss[1],2),nsmall = 2)," - ", format(round(ss[3],2),nsmall = 2),")")})
-  # res <- ifelse(res<0.5,
-  #               1-res,res)
-  res <- data.frame(Names =names(res),AUC = res)
-  ddCt <- merge(ddCt,res,by = "Names",all = TRUE, sort = FALSE)
+  if(!is.numeric(datos[,var_grupo])){
+    aux <- data.frame(datos %>% dplyr::select(noms_proteines))
+    res <- apply(aux,2,
+                 function(x){
+                   ss <- pROC::ci.auc(datos[,var_grupo], x)
+                   if(ss[2]<0.5){
+                     ss[2] <- 1 - ss[2]
+                     aux <- ss[1]
+                     ss[1] <- 1 - ss[3]
+                     ss[3] <- 1 - aux}
+                   paste0(format(round(ss[2],2),nsmall = 2), " (", format(round(ss[1],2),nsmall = 2)," - ", format(round(ss[3],2),nsmall = 2),")")})
+    res <- data.frame(Names =names(res),AUC = res)
+    ddCt <- merge(ddCt,res,by = "Names",all = TRUE, sort = FALSE)
+  }
   
   ## Resultados a devolver  
   list(limma %>% mutate_if(is.numeric, round, digits=5),
