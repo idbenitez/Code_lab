@@ -1,11 +1,5 @@
-# Expresion diferencial 
-# https://raw.githubusercontent.com/idbenitez/Code_lab/main/Expresion.diferencial.R
-
-## Update
-## Volcano plot habia un error en el codigo y no printaba el nombre de las proteinas
-
-expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
-                                          pval = 0.05, FC_limit = 1.15) {
+function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
+         pval = 0.05, FC_limit = 1.15) {
   
   ## Parametros de entrada en la función:
   ##   datos: dataframe con los datos
@@ -24,20 +18,41 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   ## Data without missing  ##
   datos <- datos[complete.cases(datos[, c(var_grupo, vars_ajuste,names_id)]),]
   
-  ## "unadjusted"  ##
-  if(is.null(vars_ajuste)){
-    design <- model.matrix(as.formula(paste0("~  0 + ", var_grupo)), data = datos)
-    colnames(design) <- c("gr1","gr2")
-    rownames(design) <- datos[,names_id]
-    cont.matrix <- makeContrasts(DIF = gr2-gr1, levels = design) 
+  
+  
+  if(is.numeric(datos[,var_grupo])){
+    ## "unadjusted"  ##
+    if(is.null(vars_ajuste)){
+      design <- model.matrix(as.formula(paste0("~", var_grupo)), data = datos)
+      colnames(design) <- c("INTERCEPT","gr")
+      rownames(design) <- datos[,names_id]
+      cont.matrix <- makeContrasts(DIF = gr, levels = design) 
+    }
+    ## "adjusted"  ##
+    else{
+      design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
+      colnames(design)[1:2] <- c("INTERCEPT", "gr")
+      rownames(design) <- datos[, names_id]
+      cont.matrix <- makeContrasts(gr, levels = design) 
+    }
   }
-  ## "adjusted"  ##
   else{
-    design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
-    colnames(design)[1:2] <- c("INTERCEPT", "gr2")
-    rownames(design) <- datos[, names_id]
-    cont.matrix <- makeContrasts(gr2, levels = design) 
-  }
+    ## "unadjusted"  ##
+    if(is.null(vars_ajuste)){
+      design <- model.matrix(as.formula(paste0("~  0 + ", var_grupo)), data = datos)
+      colnames(design) <- c("gr1","gr2")
+      rownames(design) <- datos[,names_id]
+      cont.matrix <- makeContrasts(DIF = gr2-gr1, levels = design) 
+    }
+    ## "adjusted"  ##
+    else{
+      design <- model.matrix(as.formula(paste0("~  ", var_grupo, "+ ", paste0(vars_ajuste, collapse = "+"))), data = datos)
+      colnames(design)[1:2] <- c("INTERCEPT", "gr2")
+      rownames(design) <- datos[, names_id]
+      cont.matrix <- makeContrasts(gr2, levels = design) 
+    }
+  } 
+  
   
   ## Protein data (with rows corresponding to genes/proteins and columns to samples)
   aux <- t(datos[, noms_proteines])
