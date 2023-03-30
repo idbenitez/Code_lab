@@ -11,6 +11,7 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   ##   pval: pvalor utilizado para la comparativa
   ##   FC_limit: Valor de Fold Change utilizado para la comparativa
   
+  suppressMessages({
   
   ## Check parametre logbase  ##
   if (!logbase%in%c(2,10)) stop("'logbase' must be 2 or 10")
@@ -188,5 +189,6 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
        ddCt  %>% mutate_if(is.numeric, round, digits=3), 
        bp,
        eBa)
+  })
 }
 
