@@ -127,8 +127,8 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
       geom_vline(xintercept = log10(FC_limit), colour = "#990000", linetype = "dashed") +
       # scale_y_continuous(trans = "log1p") + 
       annotate("text", x = log10(FC_limit), y = 0, label = paste0("FC = ", FC_limit), hjust = 0.15, vjust = 1, angle=90, colour = "#990000")+ 
-      annotate("text", x = -log10(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000") +
-      ggrepel::geom_text_repel(aes(x = x, y = y, label=names),show.legend=FALSE) 
+      annotate("text", x = -log10(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000") 
+    #+ ggrepel::geom_text_repel(aes(x = x, y = y, label=names),show.legend=FALSE) 
     
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
