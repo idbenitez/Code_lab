@@ -202,7 +202,7 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
             axis.text=element_text(size = 23),
             axis.title=element_text(size = 23, face = "bold"),
             legend.text = element_text(size = 23)) +
-      xlab(expression(log2("Fold Change"))) +
+      xlab("Coefficient") +
       ylab(expression(-ln("p value"))) +
       geom_hline(yintercept = (-1)*log(pval), colour = "blue", linetype = "dashed") 
 
