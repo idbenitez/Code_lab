@@ -1,3 +1,7 @@
+library(limma)
+library(dplyr)
+library(ggplot2)
+
 expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_proteines, names_id, logbase = 2,
          pval = 0.05, FC_limit = 1.15) {
   
@@ -14,7 +18,9 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   suppressMessages({
   
   ## Check parametre logbase  ##
-  if (!logbase%in%c(2,10)) stop("'logbase' must be 2 or 10")
+  
+    if(!logbase%in%c(2,10,0)) stop("'logbase' must be 2 or 10")
+    
   
   ## Data without missing  ##
   datos <- datos[complete.cases(datos[, c(var_grupo, vars_ajuste,names_id)]),]
@@ -81,8 +87,14 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   # B: log-odds that the gene/protein is differentially expressed
   
   ## Seleccion de informacion a reportar [Delta-Delta-Ct algorithm (ddCt)]
-  ddCt <- data.frame(rownames(limma), logbase^(limma$logFC), limma$P.Value, limma$adj.P.Val)
-  colnames(ddCt) <- c("Names", "FC", "p.value", "FDR")
+  if(is.null(logbase) == TRUE){
+    ddCt <- data.frame(rownames(limma),limma$logFC, limma$P.Value, limma$adj.P.Val)
+    colnames(ddCt) <- c("Names", "Coefficient", "p.value", "FDR")  
+    } 
+  else{
+    ddCt <- data.frame(rownames(limma), logbase^(limma$logFC), limma$P.Value, limma$adj.P.Val)
+    colnames(ddCt) <- c("Names", "FC", "p.value", "FDR")
+    }
   
   ## Determinar el pvalor máximo para un FDR < 0.20
   pval_FDR0.20 <- ifelse(length(ddCt$p.value[ddCt$FDR<0.20]) == 0, NA, max(ddCt$p.value[ddCt$FDR<0.20]))
@@ -166,6 +178,34 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
       annotate("text", x = -log2(FC_limit), y = 0, label = paste0("FC = ", round(1/FC_limit,2)), hjust = 0.15, vjust = -0.25, angle=90, colour = "#990000")# + 
     # ggrepel::geom_text_repel(aes(x = x, y = y, label=names),show.legend=FALSE) 
     
+    if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
+  }
+  else if (logbase==0){
+    # Puntos de corte:
+    #  -ln(pvalue): (-1)*log(0.05)
+    #             : (-1)*log(max(ddCt$p.value[ddCt$FDR<0.20]))
+    #  log2(Fold Change): (-1)*log2(1.15)
+    #                   : log2(1.15)
+    
+    ss <- data.frame(x = eBa$coefficients[,1], y = c(-1)*log(eBa$p.value[,1]), names = rownames(eBa$lods))
+    ss$color <- ifelse(ss$y >= (-1)*log(pval_FDR0.20) & !is.na(pval_FDR0.20),"FDR<0.20",
+                       ifelse(ss$y >= (-1)*log(pval),paste0("P-value<",pval),"Non-significant"))
+    ss$names[ss$y < (-1)*log(pval)] <- NA
+    
+    bp <- ggplot(ss, aes(x = x, y = y,color = color)) + geom_point(size = 2.5, alpha = 1, na.rm = T)  +
+      scale_colour_manual(values = cols) +
+      ggtitle(label = "", subtitle = "") +
+      geom_point(size = 2.5, alpha = 1, na.rm = T) +
+      theme_bw(base_size = 14) +
+      theme(legend.position = "top",
+            legend.title = element_blank(),
+            axis.text=element_text(size = 23),
+            axis.title=element_text(size = 23, face = "bold"),
+            legend.text = element_text(size = 23)) +
+      xlab(expression(log2("Fold Change"))) +
+      ylab(expression(-ln("p value"))) +
+      geom_hline(yintercept = (-1)*log(pval), colour = "blue", linetype = "dashed") 
+
     if(!is.na(pval_FDR0.20)) bp  <- bp + geom_hline(yintercept = (-1)*log(pval_FDR0.20), colour = "darkgreen", linetype = "dashed")
   }
   
