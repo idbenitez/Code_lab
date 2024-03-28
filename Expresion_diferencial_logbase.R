@@ -87,7 +87,7 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   # B: log-odds that the gene/protein is differentially expressed
   
   ## Seleccion de informacion a reportar [Delta-Delta-Ct algorithm (ddCt)]
-  if(is.null(logbase) == TRUE){
+  if(logbase == 0){
     ddCt <- data.frame(rownames(limma),limma$logFC, limma$P.Value, limma$adj.P.Val)
     colnames(ddCt) <- c("Names", "Coefficient", "p.value", "FDR")  
     } 
