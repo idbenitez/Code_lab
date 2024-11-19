@@ -78,7 +78,7 @@ expresion_diferencial_logbase <- function(datos, var_grupo, vars_ajuste, noms_pr
   # eBa$p.value: pvalue of the contrast diffference by groups
   
   ## Obtencion de la tabla de resultados con los ddCt y los p-values ##
-  limma <- topTable(eBa, adjust.method = "fdr", number = length(noms_proteines), sort.by = "p" )
+  limma <- topTable(eBa, adjust.method = "fdr", number = length(noms_proteines), sort.by = "p", number = nrow(eBa$coefficients) )
   # logFC: estimate of the log2-fold-change corresponding to the effect or contrast (for topTableF there may be several columns of log-fold-changes)
   # AveExpr: average log2-expression for the probe over all arrays and channels, same as Amean in the MarrayLM object
   # t: moderated t-statistic
